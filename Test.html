@@ -3,779 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vestre Viken Ledersamling</title>
+    <title>Open WebUI Firebase Chat</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0f172a;
+            --panel: #111827;
+            --accent: #22c55e;
+            --accent-2: #38bdf8;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --border: #1f2937;
         }
+
+        * { box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            background: #f5f5f5;
-        }
-
-        .presentation {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-        }
-
-        .slide {
-            width: 100%;
-            height: 100%;
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            padding: 60px 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .slide.active {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            animation: slideIn 0.5s ease-out;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .slide-header {
-            font-size: 1rem;
-            opacity: 0.8;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .slide-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 40px;
-            line-height: 1.2;
-        }
-
-        .slide-subtitle {
-            font-size: 1.5rem;
-            opacity: 0.9;
-            margin-bottom: 20px;
-        }
-
-        .slide-content {
-            flex: 1;
+        header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(120deg, #0b1120, #0f172a 40%, #0b1120 80%);
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .navigation {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            display: flex;
-            gap: 15px;
-            z-index: 1000;
-        }
-
-        .nav-btn {
-            background: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-
-        .slide-number {
-            position: fixed;
-            bottom: 40px;
-            left: 40px;
-            color: white;
-            font-size: 1rem;
-            opacity: 0.7;
-            z-index: 1000;
-        }
-
-        .stat-box {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            margin: 20px 0;
-            border: 2px solid rgba(255,255,255,0.2);
-        }
-
-        .big-number {
-            font-size: 5rem;
-            font-weight: 800;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-top: 30px;
-        }
-
-        .card {
-            background: rgba(255,255,255,0.12);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 15px;
-            border: 2px solid rgba(255,255,255,0.2);
-            transition: transform 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            background: rgba(255,255,255,0.18);
-        }
-
-        .card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-        }
-
-        .card p {
-            font-size: 1rem;
-            line-height: 1.6;
-            opacity: 0.9;
-        }
-
-        .icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .bullet-list {
-            list-style: none;
-            margin-top: 20px;
-        }
-
-        .bullet-list li {
-            padding: 15px 0;
-            padding-left: 40px;
-            position: relative;
-            font-size: 1.2rem;
-            line-height: 1.6;
-        }
-
-        .bullet-list li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .quote {
-            font-size: 1.8rem;
-            font-style: italic;
-            line-height: 1.6;
-            padding: 40px;
-            background: rgba(255,255,255,0.1);
-            border-left: 5px solid white;
-            border-radius: 10px;
-            margin: 30px 0;
-        }
-
-        .quote-author {
-            font-size: 1.2rem;
-            margin-top: 20px;
-            opacity: 0.8;
-            font-style: normal;
-        }
-
-        /* Specific slide backgrounds */
-        .slide-intro {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .slide-results {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .slide-challenge {
-            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-        }
-
-        .slide-innovation {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-
-        .slide-future {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-
-        .slide-closing {
-            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
-        }
-
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 5px;
-            background: white;
-            transition: width 0.3s;
-            z-index: 1001;
-        }
-
-        .chart-bar {
-            background: rgba(255,255,255,0.3);
-            height: 40px;
-            border-radius: 10px;
-            margin: 10px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chart-fill {
-            background: white;
-            height: 100%;
-            border-radius: 10px;
-            display: flex;
+            gap: 16px;
             align-items: center;
-            padding-left: 15px;
-            font-weight: bold;
-            transition: width 1s ease-out;
-        }
-
-        .timeline {
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin: 40px 0;
-            position: relative;
+            flex-wrap: wrap;
         }
 
-        .timeline:before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: rgba(255,255,255,0.3);
-            z-index: 0;
-        }
-
-        .timeline-item {
-            background: rgba(255,255,255,0.2);
-            padding: 20px 30px;
-            border-radius: 15px;
-            border: 2px solid white;
-            position: relative;
-            z-index: 1;
-            backdrop-filter: blur(10px);
-        }
-
-        .timeline-item.active {
-            background: white;
-            color: #667eea;
-            transform: scale(1.1);
-        }
-
-        .highlight {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 15px;
-            border-radius: 8px;
-            display: inline-block;
-            margin: 5px;
-        }
-
-        .flex-center {
+        .title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100%;
+            gap: 10px;
         }
 
-        .text-center {
-            text-align: center;
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--accent);
+            font-weight: 600;
+            border: 1px solid rgba(34, 197, 94, 0.3);
         }
+
+        .status.offline {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        @media (max-width: 960px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        }
+
+        .panel h2 {
+            margin: 0 0 12px;
+            font-size: 1rem;
+            color: var(--muted);
+            letter-spacing: 0.02em;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            color: var(--muted);
+        }
+
+        input, select, textarea, button {
+            font: inherit;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            background: #0b1222;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 10px;
+        }
+
+        textarea { resize: vertical; min-height: 100px; }
+
+        .row { display: flex; gap: 10px; align-items: center; }
+        .row > * { flex: 1; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, #10b981 0%, #14b8a6 60%, #0ea5e9 100%);
+            color: #0b1120;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 120ms ease, box-shadow 120ms ease;
+        }
+
+        .btn.secondary {
+            background: #0b1222;
+            color: var(--text);
+        }
+
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(56,189,248,0.25); }
+
+        .hint { color: var(--muted); font-size: 0.85rem; margin-top: 4px; line-height: 1.5; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--text);
+            font-size: 0.85rem;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+        .messages {
+            height: calc(100vh - 220px);
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            gap: 12px;
+        }
+
+        .history {
+            overflow-y: auto;
+            padding: 4px 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #0c1428;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .bubble {
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #0b1120;
+            border: 1px solid var(--border);
+            line-height: 1.6;
+        }
+
+        .bubble.assistant { border-color: rgba(34, 197, 94, 0.4); background: linear-gradient(120deg, rgba(34, 197, 94, 0.08), rgba(14, 165, 233, 0.08)); }
+        .bubble.system { border-color: rgba(148, 163, 184, 0.5); color: var(--muted); font-size: 0.9rem; }
+
+        .input-area { display: flex; flex-direction: column; gap: 10px; }
+
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .toggle input { width: auto; }
+
+        .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pill { padding: 6px 10px; background: #0b1222; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); }
+
+        footer { padding: 12px 16px; color: var(--muted); font-size: 0.85rem; text-align: center; border-top: 1px solid var(--border); }
+
+        code { background: #0b1222; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
-    <div class="progress-bar" id="progressBar"></div>
-    <div class="slide-number" id="slideNumber"></div>
-
-    <div class="presentation">
-        <!-- Slide 1: Tittel -->
-        <div class="slide active slide-intro">
-            <div class="slide-content flex-center text-center">
-                <div>
-                    <div class="slide-header">Ledersamling 26.11.2025</div>
-                    <h1 class="slide-title">Det er nå det gjelder</h1>
-                    <p class="slide-subtitle">Lisbeth Sommervoll, Administrerende direktør</p>
-                    <p class="slide-subtitle">Vestre Viken HF</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 2: Visjon -->
-        <div class="slide slide-intro">
-            <div class="slide-content flex-center text-center">
-                <div>
-                    <div class="slide-header">Vår felles visjon</div>
-                    <h1 class="slide-title" style="font-size: 2.5rem; line-height: 1.4;">Å gi gode og likeverdige helsetjenester til de som trenger det, når de trenger det</h1>
-                    <p class="slide-subtitle" style="margin-top: 40px;">Uavhengig av alder, bosted, etnisk bakgrunn, kjønn og økonomi</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 3: Suksess med ventetid -->
-        <div class="slide slide-results">
-            <div class="slide-header">Resultater</div>
-            <h1 class="slide-title">20 dagers reduksjon i ventetid!</h1>
-            <div class="slide-content">
-                <div class="stat-box">
-                    <p style="font-size: 1.5rem;">Gjennomsnittlig ventetid redusert med</p>
-                    <div class="big-number">20 dager</div>
-                    <p style="font-size: 1.3rem;">Takket være fantastisk innsats i alle klinikker</p>
-                </div>
-                <div class="grid-2" style="margin-top: 30px;">
-                    <div class="card">
-                        <div class="icon">🏆</div>
-                        <h3>Blant de beste i HSØ</h3>
-                        <p>Vi ligger i grønt og holder posisjonen</p>
-                    </div>
-                    <div class="card">
-                        <div class="icon">📈</div>
-                        <h3>Trenden fortsetter</h3>
-                        <p>Måned for måned går det rett vei</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 4: Langvakter -->
-        <div class="slide slide-innovation">
-            <div class="slide-header">Innovasjon i arbeidshverdagen</div>
-            <h1 class="slide-title">Fleksibilitet som fungerer</h1>
-            <div class="slide-content">
-                <p style="font-size: 1.5rem; margin-bottom: 30px;">One size does NOT fit all – behovet endres gjennom livet</p>
-                <div class="grid-3">
-                    <div class="card text-center">
-                        <div class="icon">📅</div>
-                        <h3>Tredelt</h3>
-                        <div class="big-number" style="font-size: 3rem;">36%</div>
-                        <p>av dagene</p>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">📊</div>
-                        <h3>Langvakter</h3>
-                        <div class="big-number" style="font-size: 3rem;">60%</div>
-                        <p>av dagene</p>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">✨</div>
-                        <h3>Resultat</h3>
-                        <p style="font-size: 1.3rem; margin-top: 20px;">Markant færre oppmøter og bedre balanse</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 5: Innovasjon -->
-        <div class="slide slide-innovation">
-            <div class="slide-header">Tjenesteinnovasjon</div>
-            <h1 class="slide-title">Vi leder an i innovasjon</h1>
-            <div class="slide-content">
-                <div class="grid-2">
-                    <div class="card">
-                        <div class="icon">💡</div>
-                        <h3>Høyest aktivitet</h3>
-                        <p>Blant de HF-ene med høyest innovasjonsaktivitet i Norge</p>
-                    </div>
-                    <div class="card">
-                        <div class="icon">🌍</div>
-                        <h3>Bred portefølje</h3>
-                        <p>Lokale, regionale og internasjonale innovasjonsprosjekter</p>
-                    </div>
-                    <div class="card">
-                        <div class="icon">🔄</div>
-                        <h3>Spredning</h3>
-                        <p>Deling av innovasjon og erfaringer på tvers</p>
-                    </div>
-                    <div class="card">
-                        <div class="icon">🤝</div>
-                        <h3>Samarbeid</h3>
-                        <p>Besøk og erfaringsdeling med andre helseforetak</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 6: Utfordring - Økonomi -->
-        <div class="slide slide-challenge">
-            <div class="slide-header">Utfordringer</div>
-            <h1 class="slide-title">Bærekraftig økonomi</h1>
-            <div class="slide-content">
-                <div class="stat-box">
-                    <p style="font-size: 1.3rem;">Resultatavvik per september 2025</p>
-                    <div class="big-number" style="font-size: 3.5rem;">-59 MNOK</div>
-                    <p style="font-size: 1.2rem; margin-top: 20px;">0,6% av brutto driftsbudsjett</p>
-                </div>
-                <p style="font-size: 1.5rem; margin-top: 40px; text-align: center;">Vi må styrke økonomien for å skape bedre handlingsrom for utvikling</p>
-            </div>
-        </div>
-
-        <!-- Slide 7: Utfordring - Bemanning -->
-        <div class="slide slide-challenge">
-            <div class="slide-header">Utfordringer</div>
-            <h1 class="slide-title">Kompetanse og bemanning</h1>
-            <div class="slide-content">
-                <div class="grid-2">
-                    <div class="stat-box text-center">
-                        <div class="icon">🏥</div>
-                        <p style="font-size: 1.3rem;">Sykefravær hittil i år</p>
-                        <div class="big-number" style="font-size: 4rem;">7,4%</div>
-                    </div>
-                    <div class="stat-box text-center">
-                        <div class="icon">👋</div>
-                        <p style="font-size: 1.3rem;">Ansatte sluttet i oktober</p>
-                        <div class="big-number" style="font-size: 4rem;">61</div>
-                    </div>
-                </div>
-                <p style="font-size: 1.5rem; margin-top: 40px; text-align: center;">Vår styrke ligger i menneskene – vi må ta vare på dem</p>
-            </div>
-        </div>
-
-        <!-- Slide 8: Samhandling -->
-        <div class="slide slide-innovation">
-            <div class="slide-header">Samhandling</div>
-            <h1 class="slide-title">Fra parter til partnere</h1>
-            <div class="slide-content">
-                <div class="stat-box text-center">
-                    <div class="icon" style="font-size: 5rem;">✨</div>
-                    <h2 style="font-size: 2rem; margin: 20px 0;">Samhandlingsarena Kongsberg</h2>
-                    <p style="font-size: 1.5rem;">Vi har fått en ✗ fra helse- og omsorgsministeren</p>
-                    <p style="font-size: 1.3rem; margin-top: 30px; opacity: 0.9;">En fullskala testarena for fremtidens helsetjenester</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 9: Veien videre - Bærekraftsplanen -->
-        <div class="slide slide-future">
-            <div class="slide-header">Veien videre</div>
-            <h1 class="slide-title">Bærekraftsplanen 3.0</h1>
-            <div class="slide-content">
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <h3>2.0</h3>
-                        <p>Fullført</p>
-                    </div>
-                    <div class="timeline-item active">
-                        <h3>3.0</h3>
-                        <p>Pågår nå</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>4.0</h3>
-                        <p>Fremtid</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>5.0</h3>
-                        <p>Visjon</p>
-                    </div>
-                </div>
-                <div class="grid-2" style="margin-top: 50px;">
-                    <div class="card">
-                        <h3>Fag og funksjon i somatikken</h3>
-                        <p>Likeverdige tjenester uavhengig av bosted</p>
-                    </div>
-                    <div class="card">
-                        <h3>Tilpassing av stab og støtte</h3>
-                        <p>Effektivisering lokalt og sentralt</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 10: Fag og funksjon -->
-        <div class="slide slide-future">
-            <div class="slide-header">Bærekraftsplanen 3.0</div>
-            <h1 class="slide-title">Fag og funksjon i somatikken</h1>
-            <div class="slide-content">
-                <div class="grid-2">
-                    <div>
-                        <h2 style="font-size: 2rem; margin-bottom: 20px;">Hvorfor?</h2>
-                        <ul class="bullet-list">
-                            <li>Økende pasientbehov</li>
-                            <li>Flere eldre og kronikere</li>
-                            <li>Mer komplekse sykdomsbilder</li>
-                            <li>Presset ressurssituasjon</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h2 style="font-size: 2rem; margin-bottom: 20px;">Hva ønsker vi?</h2>
-                        <ul class="bullet-list">
-                            <li>Står støtt – faglig og økonomisk</li>
-                            <li>Likeverdige tjenester</li>
-                            <li>Attraktive fagmiljøer</li>
-                            <li>Stolthet og arbeidsglede</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="stat-box" style="margin-top: 30px; text-align: center;">
-                    <p style="font-size: 1.5rem;"><strong>Viktig:</strong> Ingen beslutninger er tatt – vi er i innhentingsfasen</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 11: Teknologi -->
-        <div class="slide slide-innovation">
-            <div class="slide-header">Teknologi</div>
-            <h1 class="slide-title">Fremtidens verktøy</h1>
-            <div class="slide-content">
-                <div class="grid-3">
-                    <div class="card text-center">
-                        <div class="icon">🏥</div>
-                        <h3>Virtuelt sykehus</h3>
-                        <p>Hjemmeoppfølging og behandling</p>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">🤖</div>
-                        <h3>Automatisering</h3>
-                        <p>AI, robotikk og smarte systemer</p>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">🎯</div>
-                        <h3>Brukerstyrt</h3>
-                        <p>Pasienten i sentrum</p>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">🏢</div>
-                        <h3>Nytt sykehus</h3>
-                        <p>Drammen sykehus 2026</p>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">🔬</div>
-                        <h3>Forskning</h3>
-                        <p>Kliniske studier og utvikling</p>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">🌐</div>
-                        <h3>Virtual Reality</h3>
-                        <p>Opplæring og behandling</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 12: Kloke valg -->
-        <div class="slide slide-future">
-            <div class="slide-header">Kloke valg</div>
-            <h1 class="slide-title">Mer er ikke alltid bedre</h1>
-            <div class="slide-content flex-center text-center">
-                <div>
-                    <div class="icon" style="font-size: 6rem;">🤝</div>
-                    <h2 style="font-size: 2.5rem; margin: 30px 0;">Kan vi bli Norges første Kloke Valg-helsefellesskap?</h2>
-                    <p style="font-size: 1.5rem; opacity: 0.9;">Sammen gjør legen og pasienten kloke valg</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 13: Sitat fra regjeringen -->
-        <div class="slide slide-future">
-            <div class="slide-header">Regjeringens fokus</div>
-            <h1 class="slide-title">Fornye, forsterke, forbedre</h1>
-            <div class="slide-content">
-                <div class="quote">
-                    "En velfungerende allmennlegetjeneste er en forutsetning for en bærekraftig spesialisthelsetjeneste og riktig bruk av de samlede ressursene"
-                    <div class="quote-author">— Regjeringens strategi</div>
-                </div>
-                <p style="font-size: 1.5rem; text-align: center; margin-top: 40px;">Vi må samarbeide tettere med kommunene for å løse fremtidens utfordringer</p>
-            </div>
-        </div>
-
-        <!-- Slide 14: Næringsliv -->
-        <div class="slide slide-innovation">
-            <div class="slide-header">Samarbeid</div>
-            <h1 class="slide-title">Én vei inn for næringslivssamarbeid</h1>
-            <div class="slide-content">
-                <div class="grid-2">
-                    <div class="card">
-                        <div class="icon">🔬</div>
-                        <h3>Testbed</h3>
-                        <p>Utvikling av nye produkter og tjenester relevante for pasienter og ansatte</p>
-                    </div>
-                    <div class="card">
-                        <div class="icon">📊</div>
-                        <h3>Kliniske studier</h3>
-                        <p>Tilgang for pasienter og helsepersonell</p>
-                    </div>
-                    <div class="card">
-                        <div class="icon">💡</div>
-                        <h3>Innovasjonskultur</h3>
-                        <p>Bygger kultur for nytenkning</p>
-                    </div>
-                    <div class="card">
-                        <div class="icon">💰</div>
-                        <h3>Ressurser</h3>
-                        <p>Bidrar økonomisk til fagmiljøene</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 15: Motivasjon -->
-        <div class="slide slide-future">
-            <div class="slide-header">Det som driver oss</div>
-            <h1 class="slide-title">Vi vet hva som motiverer</h1>
-            <div class="slide-content">
-                <div class="grid-3">
-                    <div class="card text-center">
-                        <div class="icon">🎯</div>
-                        <div class="big-number" style="font-size: 3rem;">Mening</div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">👥</div>
-                        <div class="big-number" style="font-size: 3rem;">Lagarbeid</div>
-                    </div>
-                    <div class="card text-center">
-                        <div class="icon">📈</div>
-                        <div class="big-number" style="font-size: 3rem;">Mestring</div>
-                    </div>
-                </div>
-                <div class="stat-box" style="margin-top: 50px; text-align: center;">
-                    <p style="font-size: 1.8rem;">Det dypt menneskelige vil få sin renessanse</p>
-                    <p style="font-size: 1.5rem; margin-top: 20px; opacity: 0.9;">Sammen med og tett innvevd i ny teknologi!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 16: Handling -->
-        <div class="slide slide-challenge">
-            <div class="slide-header">Fra ord til handling</div>
-            <h1 class="slide-title">"A little less conversation, a little more action!"</h1>
-            <div class="slide-content flex-center text-center">
-                <div>
-                    <div class="icon" style="font-size: 8rem;">🚀</div>
-                    <h2 style="font-size: 2.5rem; margin: 40px 0;">Fra problembeskrivelse til problemløsning</h2>
-                    <p style="font-size: 1.5rem;">Vi kan bestemme at vi gjør det på andre måter!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 17: Drammen sykehus -->
-        <div class="slide slide-closing">
-            <div class="slide-header">Milepæl 2026</div>
-            <h1 class="slide-title">Drammen sykehus</h1>
-            <div class="slide-content">
-                <ul class="bullet-list" style="font-size: 1.3rem;">
-                    <li>Trygg og sikker innflytting på planlagt dato</li>
-                    <li>God pasientsikkerhet før, under og etter flytting</li>
-                    <li>Gjenoppretting av full drift innen 2 uker</li>
-                    <li>Ansatte som er trygge og godt forberedt fra dag én</li>
-                </ul>
-                <div class="stat-box" style="margin-top: 50px; text-align: center;">
-                    <p style="font-size: 2rem;">En hektisk, men gledelig dag venter oss!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 18: Martina Hansens -->
-        <div class="slide slide-closing">
-            <div class="slide-header">Partnerskap</div>
-            <h1 class="slide-title">Martina Hansens Hospital</h1>
-            <div class="slide-content flex-center text-center">
-                <div>
-                    <div class="icon" style="font-size: 8rem;">🤝</div>
-                    <h2 style="font-size: 3rem; margin: 40px 0;">Sterkere sammen</h2>
-                    <p style="font-size: 2rem;">For pasientens beste!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 19: Avslutning -->
-        <div class="slide slide-intro">
-            <div class="slide-content flex-center text-center">
-                <div>
-                    <div class="icon" style="font-size: 8rem;">💪</div>
-                    <h1 class="slide-title">Dette klarer vi sammen!</h1>
-                    <p style="font-size: 2rem; margin-top: 40px;">Vi kan påvirke vår egen fremtid – og vi gjør det!</p>
-                </div>
-            </div>
-        </div>
+<header>
+    <div class="title">
+        <span style="font-size: 1.6rem;">💬</span>
+        <span>Firebase-hostet chat mot Open WebUI (Ollama/RAG)</span>
     </div>
-
-    <div class="navigation">
-        <button class="nav-btn" onclick="prevSlide()">◄ Forrige</button>
-        <button class="nav-btn" onclick="nextSlide()">Neste ►</button>
+    <div class="row" style="max-width: 520px; width: 100%;">
+        <div class="status offline" id="status">Frakoblet · Vent på maskinen din</div>
+        <button class="btn secondary" id="pingBtn">Sjekk tilkobling</button>
     </div>
+</header>
 
-    <script>
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const totalSlides = slides.length;
+<main>
+    <section class="panel" aria-label="Oppsett">
+        <h2>Oppsett for hjemmenettverket</h2>
+        <label for="baseUrl">Adresse til Open WebUI (f.eks. http://192.168.1.10:3000)</label>
+        <input id="baseUrl" placeholder="http://..." autocomplete="off" />
+        <div class="hint">Sørg for at port-forwarding/brannmur tillater tilgang fra Firebase-domenet ditt. Chatten vil bare fungere når PC-en er på.</div>
 
-        function showSlide(n) {
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (n + totalSlides) % totalSlides;
-            slides[currentSlide].classList.add('active');
-            updateProgress();
-            updateSlideNumber();
-        }
+        <div class="divider"></div>
 
-        function nextSlide() {
-            showSlide(currentSlide + 1);
-        }
+        <label for="apiKey">API-nøkkel (valgfritt hvis Open WebUI er åpen)</label>
+        <input id="apiKey" placeholder="Bearer ..." autocomplete="off" />
+        <div class="hint">Nøkkelen lagres kun lokalt i nettleseren.</div>
 
-        function prevSlide() {
-            showSlide(currentSlide - 1);
-        }
+        <div class="divider"></div>
 
-        function updateProgress() {
-            const progress = ((currentSlide + 1) / totalSlides) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-        }
+        <label for="modelSelect">Velg modell</label>
+        <div class="row">
+            <select id="modelSelect"></select>
+            <button class="btn secondary" id="refreshModels">Oppdater</button>
+        </div>
+        <div class="hint">Modell-listen hentes fra Open WebUI → Ollama. Velg en RAG-modell for dokumentspørringer.</div>
 
-        function updateSlideNumber() {
-            document.getElementById('slideNumber').textContent = `${currentSlide + 1} / ${totalSlides}`;
-        }
+        <div class="divider"></div>
 
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                nextSlide();
-            } else if (e.key === 'ArrowLeft') {
-                prevSlide();
-            }
+        <div class="pill-row">
+            <span class="pill">Firebase Hosting: statisk HTML/JS</span>
+            <span class="pill">Ingen backend kreves</span>
+            <span class="pill">Online wake-up: ping din PC</span>
+        </div>
+    </section>
+
+    <section class="panel messages" aria-label="Chat">
+        <div class="history" id="history"></div>
+        <div class="input-area">
+            <label class="toggle"><input type="checkbox" id="ragToggle" checked />Bruk RAG/søk om modellen støtter det</label>
+            <textarea id="userInput" placeholder="Still et spørsmål ..."></textarea>
+            <div class="row">
+                <button class="btn" id="sendBtn">Send melding</button>
+                <button class="btn secondary" id="clearBtn">Nullstill chat</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    Laget for Firebase Hosting. Definer Open WebUI-URL i konfiguratoren. Strømmen stopper når PC-en er offline – bruk "Sjekk tilkobling" for å vekke/varme opp.
+</footer>
+
+<script>
+    const baseUrlInput = document.getElementById('baseUrl');
+    const apiKeyInput = document.getElementById('apiKey');
+    const modelSelect = document.getElementById('modelSelect');
+    const statusEl = document.getElementById('status');
+    const historyEl = document.getElementById('history');
+    const userInput = document.getElementById('userInput');
+    const ragToggle = document.getElementById('ragToggle');
+    const sendBtn = document.getElementById('sendBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const pingBtn = document.getElementById('pingBtn');
+    const refreshBtn = document.getElementById('refreshModels');
+
+    const STORAGE_KEY = 'open-webui-settings-v1';
+    let conversation = [];
+
+    function loadSettings() {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        if (saved.baseUrl) baseUrlInput.value = saved.baseUrl;
+        if (saved.apiKey) apiKeyInput.value = saved.apiKey;
+        if (saved.model) currentModel = saved.model;
+    }
+
+    function persistSettings() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            baseUrl: baseUrlInput.value.trim(),
+            apiKey: apiKeyInput.value.trim(),
+            model: modelSelect.value
+        }));
+    }
+
+    function setStatus(text, online) {
+        statusEl.textContent = text;
+        statusEl.classList.toggle('offline', !online);
+    }
+
+    function addMessage(role, content) {
+        conversation.push({ role, content });
+        renderMessages();
+    }
+
+    function renderMessages() {
+        historyEl.innerHTML = '';
+        conversation.forEach(({ role, content }) => {
+            const div = document.createElement('div');
+            div.className = `bubble ${role}`;
+            div.innerText = `${role.toUpperCase()}: ${content}`;
+            historyEl.appendChild(div);
         });
+        historyEl.scrollTop = historyEl.scrollHeight;
+    }
 
-        // Initialize
-        updateProgress();
-        updateSlideNumber();
-    </script>
+    async function pingServer() {
+        const baseUrl = baseUrlInput.value.trim();
+        if (!baseUrl) return alert('Fyll inn Open WebUI-adressen først.');
+        try {
+            setStatus('Kontakter maskinen din ...', false);
+            const resp = await fetch(baseUrl, { mode: 'no-cors' });
+            const ok = resp.type === 'opaque' || resp.ok;
+            setStatus(ok ? 'Tilkoblet · klar for chat' : 'Ingen respons', ok);
+            return ok;
+        } catch (err) {
+            console.error(err);
+            setStatus('Frakoblet · start/vekke PC-en', false);
+            return false;
+        }
+    }
+
+    function headers() {
+        const hdrs = { 'Content-Type': 'application/json' };
+        const key = apiKeyInput.value.trim();
+        if (key) hdrs['Authorization'] = key.startsWith('Bearer') ? key : `Bearer ${key}`;
+        return hdrs;
+    }
+
+    async function loadModels() {
+        const baseUrl = baseUrlInput.value.trim();
+        if (!baseUrl) return alert('Fyll inn Open WebUI-adressen først.');
+        modelSelect.innerHTML = '<option>Laster modeller ...</option>';
+        try {
+            const resp = await fetch(`${baseUrl}/api/models`, { headers: headers() });
+            if (!resp.ok) throw new Error('Kunne ikke hente modell-liste');
+            const data = await resp.json();
+            const models = data.data || data.models || [];
+            modelSelect.innerHTML = '';
+            if (!models.length) modelSelect.innerHTML = '<option>Ingen modeller funnet</option>';
+            models.forEach(m => {
+                const id = m.id || m.name || m.model;
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.textContent = id;
+                modelSelect.appendChild(opt);
+            });
+            persistSettings();
+            setStatus('Tilkoblet · modeller hentet', true);
+        } catch (err) {
+            console.error(err);
+            modelSelect.innerHTML = '<option>Feil ved henting</option>';
+            setStatus('Frakoblet · sjekk PC/URL', false);
+        }
+    }
+
+    async function sendMessage() {
+        const baseUrl = baseUrlInput.value.trim();
+        if (!baseUrl) return alert('Fyll inn Open WebUI-adressen først.');
+        if (!modelSelect.value) return alert('Velg en modell.');
+        const content = userInput.value.trim();
+        if (!content) return;
+
+        addMessage('user', content);
+        userInput.value = '';
+        sendBtn.disabled = true;
+        setStatus('Sender forespørsel ...', true);
+
+        const payload = {
+            model: modelSelect.value,
+            messages: conversation,
+            stream: false
+        };
+
+        if (ragToggle.checked) {
+            payload.provider = payload.provider || {};
+            payload.rag = { query: content, enable: true };
+        }
+
+        try {
+            const resp = await fetch(`${baseUrl}/api/chat/completions`, {
+                method: 'POST',
+                headers: headers(),
+                body: JSON.stringify(payload)
+            });
+            if (!resp.ok) throw new Error('Modellen svarte ikke');
+            const data = await resp.json();
+            const reply = data.choices?.[0]?.message?.content || JSON.stringify(data);
+            addMessage('assistant', reply);
+            setStatus('Tilkoblet · svar mottatt', true);
+        } catch (err) {
+            console.error(err);
+            addMessage('system', 'Feil: ' + err.message + '\nStart Open WebUI på PC-en og prøv igjen.');
+            setStatus('Frakoblet · start/vekke PC-en', false);
+        } finally {
+            sendBtn.disabled = false;
+            persistSettings();
+        }
+    }
+
+    function clearChat() {
+        conversation = [];
+        historyEl.innerHTML = '';
+        persistSettings();
+    }
+
+    // Event listeners
+    sendBtn.addEventListener('click', sendMessage);
+    clearBtn.addEventListener('click', clearChat);
+    pingBtn.addEventListener('click', pingServer);
+    refreshBtn.addEventListener('click', () => { persistSettings(); loadModels(); });
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendMessage();
+    });
+    baseUrlInput.addEventListener('change', persistSettings);
+    apiKeyInput.addEventListener('change', persistSettings);
+    modelSelect.addEventListener('change', persistSettings);
+
+    loadSettings();
+    renderMessages();
+    if (baseUrlInput.value) pingServer();
+</script>
 </body>
 </html>
